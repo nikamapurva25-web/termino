@@ -1,21 +1,58 @@
-socket.on("user_joined", (user) => {
+const io = require("socket.io-client");
+const readline = require("readline");
+const chalk = require("chalk");
 
-  process.stdout.clearLine(0);
-  process.stdout.cursorTo(0);
+const SERVER = "https://termino-5ajw.onrender.com";
 
-  console.log(chalk.green(`🔔 ${user} connected to the server`));
-
-  rl.prompt(true);
-
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
 });
 
-socket.on("user_left", (user) => {
+let socket;
+let username = "";
 
-  process.stdout.clearLine(0);
-  process.stdout.cursorTo(0);
+rl.question("Username: ", (name) => {
+  username = name.trim();
 
-  console.log(chalk.red(`❌ ${user} left the server`));
+  if (!username) {
+    console.log("Username required");
+    process.exit();
+  }
 
-  rl.prompt(true);
+  socket = io(SERVER);
 
+  socket.on("connect", () => {
+    console.log(chalk.green("🔔 Connected to the server"));
+    socket.emit("join", username);
+    rl.setPrompt("> ");
+    rl.prompt();
+  });
+
+  socket.on("message", (data) => {
+    process.stdout.clearLine(0);
+    process.stdout.cursorTo(0);
+    console.log(`${data.user}: ${data.text}`);
+    rl.prompt(true);
+  });
+
+  socket.on("user_joined", (user) => {
+    process.stdout.clearLine(0);
+    process.stdout.cursorTo(0);
+    console.log(chalk.green(`🔔 ${user} connected to the server`));
+    rl.prompt(true);
+  });
+
+  socket.on("user_left", (user) => {
+    process.stdout.clearLine(0);
+    process.stdout.cursorTo(0);
+    console.log(chalk.red(`❌ ${user} left the server`));
+    rl.prompt(true);
+  });
+
+  rl.on("line", (input) => {
+    const msg = input.trim();
+    if (!msg) return; // block blanks
+    socket.emit("message", msg);
+  });
 });
