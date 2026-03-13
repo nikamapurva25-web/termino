@@ -12,10 +12,9 @@ const rl = readline.createInterface({
 let socket;
 let username = "";
 
-// username colors
+// username colors (NO GREEN)
 const colors = [
   chalk.cyan,
-  chalk.green,
   chalk.magenta,
   chalk.blue,
   chalk.yellow,
@@ -60,9 +59,15 @@ rl.question("Username: ", (name) => {
 
   socket.on("connect", () => {
 
+    // remove prompt before printing
+    process.stdout.clearLine(0);
+    process.stdout.cursorTo(0);
+
     console.log(chalk.green("🔔 Connected to the server"));
 
     socket.emit("join", username);
+
+    rl.prompt();
 
   });
 
@@ -94,19 +99,6 @@ rl.question("Username: ", (name) => {
 
   });
 
-  socket.on("users_list", (users) => {
-
-    process.stdout.clearLine(0);
-    process.stdout.cursorTo(0);
-
-    console.log("\nOnline users:");
-
-    users.forEach(u => console.log("- " + u));
-
-    rl.prompt(true);
-
-  });
-
   rl.setPrompt("> ");
   rl.prompt();
 
@@ -115,11 +107,6 @@ rl.question("Username: ", (name) => {
     const msg = input.trim();
 
     if (!msg) return;
-
-    if (msg === "/users") {
-      socket.emit("get_users");
-      return;
-    }
 
     socket.emit("message", msg);
 

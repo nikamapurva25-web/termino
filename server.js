@@ -20,7 +20,6 @@ io.on("connection", (socket) => {
     socket.username = name;
     users[socket.id] = name;
 
-    // notify others
     socket.broadcast.emit("user_joined", name);
 
   });
@@ -28,8 +27,6 @@ io.on("connection", (socket) => {
   socket.on("message", (msg) => {
 
     const text = String(msg || "").trim();
-
-    // block blank messages
     if (!text) return;
 
     io.emit("message", {
@@ -39,16 +36,9 @@ io.on("connection", (socket) => {
 
   });
 
-  socket.on("get_users", () => {
-
-    socket.emit("users_list", Object.values(users));
-
-  });
-
   socket.on("disconnect", () => {
 
     const name = users[socket.id];
-
     if (!name) return;
 
     delete users[socket.id];
