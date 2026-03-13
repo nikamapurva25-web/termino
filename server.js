@@ -20,6 +20,7 @@ io.on("connection", (socket) => {
     socket.username = name;
     users[socket.id] = name;
 
+    // notify everyone except the joining user
     socket.broadcast.emit("user_joined", name);
 
   });
@@ -39,10 +40,12 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
 
     const name = users[socket.id];
+
     if (!name) return;
 
     delete users[socket.id];
 
+    // notify others
     socket.broadcast.emit("user_left", name);
 
   });
