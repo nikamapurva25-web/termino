@@ -6,6 +6,10 @@ const io = new Server(PORT, {
   cors: { origin: "*" }
 });
 
+const users = {};
+
+console.log("Chat server running on port", PORT);
+
 io.on("connection", (socket) => {
 
   socket.on("join", (username) => {
@@ -14,6 +18,10 @@ io.on("connection", (socket) => {
     if (!name) return;
 
     socket.username = name;
+    users[socket.id] = name;
+
+    // notify others
+    socket.broadcast.emit("user_joined", name);
 
   });
 
@@ -28,6 +36,24 @@ io.on("connection", (socket) => {
       user: socket.username,
       text: text
     });
+
+  });
+
+  socket.on("get_users", () => {
+
+    socket.emit("users_list", Object.values(users));
+
+  });
+
+  socket.on("disconnect", () => {
+
+    const name = users[socket.id];
+
+    if (!name) return;
+
+    delete users[socket.id];
+
+    socket.broadcast.emit("user_left", name);
 
   });
 
