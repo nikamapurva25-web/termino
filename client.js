@@ -12,7 +12,42 @@ const rl = readline.createInterface({
 let socket;
 let username = "";
 
+// username colors (NO GREEN)
+const colors = [
+  chalk.cyan,
+  chalk.magenta,
+  chalk.blue,
+  chalk.yellow,
+  chalk.red
+];
+
+const userColors = {};
+let colorIndex = 0;
+
+function getColor(user) {
+
+  if (!userColors[user]) {
+    userColors[user] = colors[colorIndex % colors.length];
+    colorIndex++;
+  }
+
+  return userColors[user];
+}
+
+function printMessage(user, text) {
+
+  process.stdout.clearLine(0);
+  process.stdout.cursorTo(0);
+
+  const color = getColor(user);
+
+  console.log(color(user) + ": " + text);
+
+  rl.prompt(true);
+}
+
 rl.question("Username: ", (name) => {
+
   username = name.trim();
 
   if (!username) {
@@ -23,36 +58,55 @@ rl.question("Username: ", (name) => {
   socket = io(SERVER);
 
   socket.on("connect", () => {
+
+    process.stdout.clearLine(0);
+    process.stdout.cursorTo(0);
+
     console.log(chalk.green("🔔 Connected to the server"));
+
     socket.emit("join", username);
-    rl.setPrompt("> ");
-    rl.prompt();
+
   });
 
   socket.on("message", (data) => {
-    process.stdout.clearLine(0);
-    process.stdout.cursorTo(0);
-    console.log(`${data.user}: ${data.text}`);
-    rl.prompt(true);
+
+    printMessage(data.user, data.text);
+
   });
 
   socket.on("user_joined", (user) => {
+
     process.stdout.clearLine(0);
     process.stdout.cursorTo(0);
+
     console.log(chalk.green(`🔔 ${user} connected to the server`));
+
     rl.prompt(true);
+
   });
 
   socket.on("user_left", (user) => {
+
     process.stdout.clearLine(0);
     process.stdout.cursorTo(0);
+
     console.log(chalk.red(`❌ ${user} left the server`));
+
     rl.prompt(true);
+
   });
 
+  rl.setPrompt("> ");
+  rl.prompt();
+
   rl.on("line", (input) => {
+
     const msg = input.trim();
-    if (!msg) return; // block blanks
+
+    if (!msg) return;
+
     socket.emit("message", msg);
+
   });
+
 });

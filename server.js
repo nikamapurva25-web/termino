@@ -8,7 +8,7 @@ const io = new Server(PORT, {
 
 const users = {};
 
-console.log("Server running on port", PORT);
+console.log("Chat server running on port", PORT);
 
 io.on("connection", (socket) => {
 
@@ -20,10 +20,9 @@ io.on("connection", (socket) => {
     socket.username = name;
     users[socket.id] = name;
 
-    console.log(name + " joined");
-
     // notify other users
     socket.broadcast.emit("user_joined", name);
+
   });
 
   socket.on("message", (msg) => {
@@ -35,6 +34,7 @@ io.on("connection", (socket) => {
       user: socket.username,
       text: text
     });
+
   });
 
   socket.on("disconnect", () => {
@@ -44,9 +44,8 @@ io.on("connection", (socket) => {
 
     delete users[socket.id];
 
-    console.log(name + " left");
-
     socket.broadcast.emit("user_left", name);
+
   });
 
 });
