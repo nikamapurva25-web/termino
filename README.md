@@ -1,6 +1,6 @@
 # Termino 💻💬
 
-A real-time terminal chat application built with Node.js and Socket.IO.
+A real-time terminal chat app built with Node.js and Socket.IO.
 
 ## 🚀 Features
 - Real-time messaging
@@ -11,7 +11,26 @@ A real-time terminal chat application built with Node.js and Socket.IO.
 
 ## 📦 Installation
 
-```bash
-git clone https://github.com/nikamapurva25-webgit
-cd termino
-npm install
+git clone https://github.com/YOUR_USERNAME/termino.git  
+cd termino  
+npm install  
+
+## ▶️ Run
+
+Start server:
+npm start  
+
+Run client:
+npm run client  
+
+## 📁 Project Structure
+
+termino/
+├── server/
+│   └── server.js
+├── client/
+│   └── client.js
+
+## 🌐 Server
+
+https://termino-5ajw.onrender.com
